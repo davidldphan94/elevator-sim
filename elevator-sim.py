@@ -85,10 +85,10 @@ class Person:
         self.weight = weight
     
     def __str__(self):
-        return f"(Person going to {self.destination}; Total Weight: {self.weight} lbs)"
+        return f"(Person going to {self.destination}; Weight: {self.weight} lbs)"
     
     def __repr__(self):
-        return f"(Person going to {self.destination}; Total Weight: {self.weight} lbs)"
+        return f"(Person going to {self.destination}; Weight: {self.weight} lbs)"
     
     def __eq__(self, other):
         return self.destination == other.destination
@@ -205,6 +205,17 @@ class Elevator:
         success = self.elevatorMoving(self.getCurrentFloor().getFloorNum(), floorToGo)
         if not success:
             return
+        self.startJob(people)
+
+    """
+    startJob
+
+    Drops people boarded on the elevator off to their destinations.
+
+    @args: people: the people wanting to board at this floor
+    @return: None
+    """
+    def startJob(self, people : list):
         print("Entering Elevator...")
         peopleBoarding = sorted([person for person in self.boardPeople(people)], key = lambda p: self.getCurrentFloor().getFloorNum() - p.destination)
         print(f"Boarding {peopleBoarding} ; Total Weight: {self.currentWeight}")
@@ -218,7 +229,9 @@ class Elevator:
                 print("Floor under maintenance, please select another floor.")
                 continue
             else:
-                self.goToFloor(floor)
+                success = self.elevatorMoving(self.getCurrentFloor().getFloorNum(), floor)
+                if not success:
+                    return
 
     """
     boardPeople
@@ -284,41 +297,29 @@ class Elevator:
     @return: bool
     """
     def elevatorMoving(self, a : int, b : int) -> bool:
-        
-        assert a < len(self.floors) or b > 1
+        assert a <= len(self.floors) or b > 1
         if a < b: #going up
             start, end = a - 1, b
             floorsBetween = self.getFloors()[start: end]
         else: #going down
-            start, end = b - 1, a
+            start, end = b - 1, a - 1
             floorsBetween = reversed(self.getFloors()[start: end])
         for floor in floorsBetween:
-            print(f"{floor}... People Boarded: {self.currentOccupancy} ; Total Weight: {self.currentWeight}")
             self.setCurrentFloor(floor)
+            print(f"{floor}... People Boarded: {self.currentOccupancy} ; Total Weight: {self.currentWeight}")
             peopleLeaving = [person for person in self.currentOccupancy if person.destination == self.getCurrentFloor().getFloorNum()]
             if random.randint(0, 100) == 13: # life happens
                 print("Elevator stopped working... call for help!")
                 self.sendHelp()
                 return False
-            elif len(peopleLeaving) > 0:
+            if len(peopleLeaving) > 0:
                 print(f"{peopleLeaving} now exiting at Floor {self.getCurrentFloor().getFloorNum()}...")
                 self.currentOccupancy = [p for p in self.currentOccupancy if p not in peopleLeaving]
                 self.currentWeight -= sum([p.weight for p in peopleLeaving])
+                if self.currentOccupancy == []:
+                    break
             time.sleep(3)
         return True
-  
-    """
-    goToFloor
-
-    Moves the floor to to the destination
-
-    @args: dest : the floor number to go to
-    @return: None
-    """
-    def goToFloor(self, dest : int):
-        success = self.elevatorMoving(self.getFloors().index(self.getCurrentFloor()), dest)
-        if not success and self.currentOccupancy == [] and self.underMaintenance():
-            return
     
     """
     sendHelp
@@ -338,16 +339,25 @@ class Elevator:
         self.currentWeight = 0
         self.startMaintenance()
 
-def generateFloorClickedAndPeopleWaiting(elevator):
+def generateFloorClickedAndPeopleWaiting(elevator : Elevator):
     floorClicked = random.randint(1, len(elevator.getFloors()))
-    people = [Person(random.randint(1, len(elevator.getFloors())), 150) for _ in range(10)]
+    people = [Person(random.randint(1, len(elevator.getFloors())), 150) for _ in range(elevator.maximumOccupancy)]
     return floorClicked, people
 
-def main():
-    e1 = Elevator(10, 20, 2000000)
+def main(floors, capacity, weightLimit):
+    e1 = Elevator(floors, capacity, weightLimit)
     for _ in range(3):
         floorClicked, people = generateFloorClickedAndPeopleWaiting(e1)
         e1.callElevator(floorClicked, people)
+    return False
 
 if __name__ == "__main__":
-    main()
+    executing = True
+    while executing:
+        try:
+            floors = int(input("Enter # of floors: "))
+            capacity = int(input("Enter capacity limit: "))
+            weightLimit = int(input("Enter weight limit: "))
+            executing = main(floors, capacity, weightLimit)
+        except ValueError:
+            print("Inputs must be numbers.")

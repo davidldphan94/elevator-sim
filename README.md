@@ -13,6 +13,7 @@ This code simulates an elevator using python code. The readme is written to docu
 # Unimplemented Features
 1. Does not implement elevator numbers under ground level (no basement functionality).
 2. Elevator does not pick up people on the way.
+3. Elevator does not distinguish which way it'll go to drop people off most efficiently.
 
 ### NOTES I TOOK TO BRAINSTORM ###
 1. Elevators should go up and down based on how many floors there are.
