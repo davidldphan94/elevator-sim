@@ -3,6 +3,18 @@ Bluestaq coding challenge
 
 This code simulates an elevator using python code. The readme is written to document some notes on my work.
 
+# Implemented Features
+1. Elevator can go up and down given a method.
+2. Elevator implements a pseudo-random malfunction because realistically, elevators don't always work.
+3. People can go in and out of elevators whenever their floors are reached.
+4. Elevator has a maximum weight and occupancy limit.
+5. Elevator can go into maintenance mode given any malfunctions.
+
+# Unimplemented Features
+1. Does not implement elevator numbers under ground level (no basement functionality).
+2. Elevator does not pick up people on the way.
+
+### NOTES I TOOK TO BRAINSTORM ###
 1. Elevators should go up and down based on how many floors there are.
 2. Elevators have a maximum capacity on people and weight.
 3. Elevators should have the floors capped until more floors are built. 
@@ -25,6 +37,7 @@ Methods:
 - Can you enter the elevator (i.e. weight or person limit, under maintenance, etc.)
 - What floor is it on?
 
-Stretch Goals:
-- Wait time...
-- Display floor number
+Thoughts:
+- I originally had it so that it was single-use only.
+- Should it try to accomodate for multiple users who already know where they're going?
+- Implement Person, Floor classes to store more information past primitives
